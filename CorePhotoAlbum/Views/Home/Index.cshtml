@@ -1,8 +1,38 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<CorePhotoAlbum.Models.Photos>
+
+@{
+    ViewData["Title"] = "Index";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+<h1 class="main-title">Photos Unlimited</h1>
+<p class="into">Join, upload, share, and comment instantly. Bring your photographic vision to everyone.</p>
+<p class="into">Our latest Photos</p>
+
+@foreach (var item in Model)
+{
+    <div>
+        <h3>@Html.DisplayFor(modelitem => item.UserName)</h3>
+        @if (item.UserName != null)
+        {
+    <div>
+        <img src="@Url.Action("GetImage","Home",new { photoId=item.PhotoId})" />
+    </div>
+        }
+    </div>
+
+    <div>
+        @Html.DisplayNameFor(modelitem => item.Description)
+        @Html.DisplayFor(modelitem => item.Description)
+    </div>
+
+    <div>
+        @Html.DisplayNameFor(modelitem => item.CreatedDate)
+        @Html.DisplayFor(modelitem => item.CreatedDate)
+    </div>
+}

@@ -6,21 +6,51 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using CorePhotoAlbum.Models;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
 
 namespace CorePhotoAlbum.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly PhotosharingdbContext _context;
+        private readonly IHostingEnvironment _environment;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger,PhotosharingdbContext context, IHostingEnvironment environment)
         {
             _logger = logger;
+            this._context = context;
+            this._environment = environment;
         }
 
         public IActionResult Index()
         {
-            return View();
+            return View(_context.Photos.ToList());
+        }
+
+        public IActionResult GetImage(int photoId)
+        {
+            Photos requestedPhoto = _context.Photos.Find(photoId);
+
+            if(requestedPhoto != null)
+            {
+                string webRootpath = _environment.WebRootPath;
+                string folderPath = "\\images\\";
+                string fullPath = webRootpath + folderPath + requestedPhoto.PhotoFile;
+
+                FileStream fileOnDisk = new FileStream(fullPath, FileMode.Open);
+                byte[] fileBytes;
+                using (BinaryReader br = new BinaryReader(fileOnDisk))
+                {
+                    fileBytes = br.ReadBytes((int)fileOnDisk.Length);
+                }
+                return File(fileBytes, requestedPhoto.ImageMimeType);
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
 
         public IActionResult Privacy()
